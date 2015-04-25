@@ -31,3 +31,27 @@ class FollowUserApi(Resource):
         else:
             status_fields = generate_status_fields(404, 'error')
         return status_fields
+
+
+class BlockUserApi(Resource):
+
+    method_decorators = [login_required]
+
+    def put(self, id):
+        user = User.objects.get_or_404(id=id)
+        if user in current_user.blocked_users:
+            current_user.update_one(push_blocked_user=user)
+            status_fields = generate_status_fields(200, 'ok')
+        else:
+            status_fields = generate_status_fields(404, 'error')
+
+        return status_fields
+
+    def delete(self, id):
+        user = User.objects.get_or_404(id=id)
+        if user in current_user.blocked_users:
+            current_user.update_one(pull_blocked_user=user)
+            status_fields = generate_status_fields(200, 'ok')
+        else:
+            status_fields = generate_status_fields(404, 'error')
+        return status_fields
